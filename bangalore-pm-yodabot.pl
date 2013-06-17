@@ -57,6 +57,7 @@ sub on_public {
     #Respond with Yoda Speak
     my $yodifier = Acme::Yoda->new();
     my $yodaspeak = $yodifier->yoda($msg);
+    print $yodaspeak."\n";
 
     # Send a response back to the server.
     $irc->yield(privmsg => "$channel", $yodaspeak);
@@ -83,9 +84,11 @@ sub on_join {
   my $nick    = (split /!/, $who)[0];
   my $channel = $where;
   my $ts      = scalar localtime;
-  print " [$ts] <$nick:$channel> Joined\n";
-  if ($channel eq "#bangalore.pm") {
-    $irc->yield(privmsg => "$channel", GREEN . "To this channel, welcome you are " . NORMAL . $nick);
+  if( $nick ne 'Yoda' ){
+    print " [$ts] <$nick:$channel> Joined\n";
+    if ($channel eq "#bangalore.pm") {
+      $irc->yield(privmsg => "$channel", GREEN . "To this channel, welcome you are " . NORMAL . $nick);
+    }
   }
 }
 
