@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use POE;
 use POE::Component::IRC;
+use IRC::Utils qw(GREEN NORMAL);
 use Acme::Yoda;
 sub CHANNEL () { "#poe" }
 
@@ -41,7 +42,7 @@ sub bot_start {
 
 # The bot has successfully connected to a server.  Join a channel.
 sub on_connect {
-  $irc->yield(join => "#bangalore-pm");
+  $irc->yield(join => "#bangalore.pm");
 }
 
 # The bot has received a public message.  Parse it for commands, and
@@ -52,7 +53,7 @@ sub on_public {
   my $channel = $where->[0];
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> $msg\n";
-  if ($msg =~ /yoda/ && $channel eq "#bangalore-pm") {
+  if ($msg =~ /yoda/i && $channel eq "#bangalore.pm") {
     #Respond with Yoda Speak
     my $yodifier = Acme::Yoda->new();
     my $yodaspeak = $yodifier->yoda($msg);
@@ -73,7 +74,7 @@ sub on_private {
   #Respond with Yoda Speak
   my $yodifier = Acme::Yoda->new();
   my $yodaspeak = $yodifier->yoda($msg);
-  $irc->yield('privmsg' => $nick => $yodaspeak);
+  $irc->yield('privmsg' => $nick => GREEN . $yodaspeak);
 }
 
 # Someone joined the channel. 
@@ -83,8 +84,8 @@ sub on_join {
   my $channel = $where;
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> Joined\n";
-  if ($channel eq "#bangalore-pm") {
-    $irc->yield(privmsg => "$channel", "To this channel, welcome you are $nick");
+  if ($channel eq "#bangalore.pm") {
+    $irc->yield(privmsg => "$channel", GREEN . "To this channel, welcome you are " . NORMAL . $nick);
   }
 }
 
@@ -95,8 +96,8 @@ sub on_quit {
   my $channel = $where;
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> Left\n";
-  if ($channel eq "#bangalore-pm") {
-    $irc->yield(privmsg => "$channel", "Goodbye $nick, may the force be with you");
+  if ($channel eq "#bangalore.pm") {
+    $irc->yield(privmsg => "$channel", GREEN . "Goodbye " . NORMAL . $nick . GREEN . ", may the force be with you");
   }
 }
 
