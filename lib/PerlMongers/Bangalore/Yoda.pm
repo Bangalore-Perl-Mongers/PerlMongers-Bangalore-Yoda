@@ -112,7 +112,7 @@ sub _on_private {
             msg => $msg, 
         });
         for my $answer_line( split (/\n/,$answer)) {
-            $irc->yield(privmsg => "$channel", $answer_line);
+            $irc->yield(privmsg => "$nick", $answer_line);
         }
     }
 }
