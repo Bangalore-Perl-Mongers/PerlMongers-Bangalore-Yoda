@@ -3,8 +3,9 @@ use warnings;
 use strict;
 use POE;
 use POE::Component::IRC;
-use IRC::Utils qw(GREEN NORMAL);
+use IRC::Utils qw(GREEN BLUE RED NORMAL);
 use Acme::Yoda;
+use DateTime;
 sub CHANNEL () { "#poe" }
 
 # Create the component that will represent an IRC network.
@@ -34,7 +35,8 @@ sub bot_start {
       Nick     => $nick,
       Username => 'masteryoda',
       Ircname  => 'Yoda bot by Shantanu Bhadoria<shantanu at cpann dott org>',
-      Server   => 'irc.perl.org',
+      #Server   => 'irc.perl.org',
+      Server   => '127.0.0.1',
       Port     => '6667',
     }
   );
@@ -80,22 +82,32 @@ sub on_private {
 
 # Someone joined the channel. 
 sub on_join {
-  my ($kernel, $who, $where, $msg) = @_[KERNEL, ARG0, ARG1, ARG2];
+  my ($heap, $kernel, $who, $where, $msg) = @_[HEAP,KERNEL, ARG0, ARG1, ARG2];
   my $nick    = (split /!/, $who)[0];
   my $channel = $where;
+  my $time_since_loggedout = time - $heap->{logged_hour}->{$nick};
   my $ts      = scalar localtime;
-  if( $nick ne 'Yoda' ){
-    print " [$ts] <$nick:$channel> Joined\n";
+  if( $nick ne 'Yoda' && $time_since_loggedout > 1200 ){
+    print " [$ts] <$nick:$channel> Joined, time since last login: $time_since_loggedout\n";
     if ($channel eq "#bangalore.pm") {
-      $irc->yield(privmsg => "$channel", GREEN . "To this channel, welcome you are " . NORMAL . $nick);
+      $irc->yield(privmsg => "$channel", 
+          GREEN . "Hello, " . NORMAL . $nick . GREEN . "! Welcome to Bangalore.pm. I am Yoda. I am just a bot (a perl program)." 
+          . " There are humans around too, but you will have to be patient before they notice you. Please introduce yourself. " 
+          . BLUE . "For more help type \"" . RED . "help me yoda" . BLUE . "\".");
     }
+  } else {
+      print "Joined back too soon. No greeting for you\n";
   }
 }
 
 # Someone left the channel. 
 sub on_quit {
-  my ($kernel, $who, $where, $msg) = @_[KERNEL, ARG0, ARG1, ARG2];
+  my ($heap, $kernel, $who, $where, $msg) = @_[HEAP, KERNEL, ARG0, ARG1, ARG2];
   my $nick    = (split /!/, $who)[0];
+  my $dt = DateTime->now;
+  $dt->set_time_zone( 'Asia/Calcutta' );
+
+  $heap->{logged_hour}->{$nick} = time;  
   my $channel = $where;
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> Left\n";
