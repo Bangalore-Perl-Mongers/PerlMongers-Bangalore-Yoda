@@ -1,29 +1,49 @@
-#!/usr/bin/perl
-use warnings;
+package PerlMongers::Bangalore::Yoda;
+
+use 5.010;
 use strict;
-use POE;
-use POE::Component::IRC;
+use warnings;
+
+use Log::Log4perl qw(get_logger :nowarn);
+use POE qw(Component::IRC);
 use IRC::Utils qw(GREEN BLUE RED NORMAL);
 use Acme::Yoda;
-use DateTime;
+
+=head1 NAME
+
+PerlMongers::Bangalore::Yoda - The Yoda Bot for the Bangalore.pm IRC Channel.
+
+=cut
+
 sub CHANNEL () { "#poe" }
 
 # Create the component that will represent an IRC network.
 my ($irc) = POE::Component::IRC->spawn();
 
-# Create the bot session. 
-POE::Session->create(
-  inline_states => {
-    _start     => \&bot_start,
-    irc_001    => \&on_connect,
-    irc_public => \&on_public,
-    irc_msg    => \&on_private,
-    irc_join    => \&on_join,
-    irc_quit    => \&on_quit,
-    irc_part    => \&on_quit,
-    irc_kick    => \&on_quit,
-  },
-);
+sub run {
+    my ( $class, %params ) = @_;
+
+    my $logger = get_logger;
+    Log::Log4perl::NDC->push('Yoda');
+    $logger->info("Starting Yoda Bot");
+
+    # Create the bot session. 
+    my $session = POE::Session->create(
+        inline_states => {
+            _start     => \&bot_start,
+            irc_001    => \&on_connect,
+            irc_public => \&on_public,
+            irc_msg    => \&on_private,
+            irc_join    => \&on_join,
+            irc_quit    => \&on_quit,
+            irc_part    => \&on_quit,
+            irc_kick    => \&on_quit,
+        },
+    );
+    POE::Kernel->run;
+    $logger->warn("Yoda exited main loop terminating bot");
+    return;
+}
 
 # The bot session has started.  Register this bot with the "magnet"
 # IRC component.  Select a nickname.  Connect to a server.
@@ -50,12 +70,15 @@ sub on_connect {
 # The bot has received a public message.  Parse it for commands, and
 # respond to interesting things.
 sub on_public {
-  my ($kernel, $who, $where, $msg) = @_[KERNEL, ARG0, ARG1, ARG2];
+  my ($heap, $kernel, $who, $where, $msg) = @_[HEAP, KERNEL, ARG0, ARG1, ARG2];
   my $nick    = (split /!/, $who)[0];
   my $channel = $where->[0];
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> $msg\n";
-  if ($msg =~ /yoda/i && $channel eq "#bangalore.pm") {
+  if (
+      $msg =~ /yoda/i && $channel eq "#bangalore.pm" 
+      && ($heap->{last_loggedin_times}->{$nick} - time) > 1200 # make sure that the last time nick left channel was more than 20 minutes ago
+  ) {
     #Respond with Yoda Speak
     my $yodifier = Acme::Yoda->new();
     my $yodaspeak = $yodifier->yoda($msg);
@@ -68,8 +91,9 @@ sub on_public {
 
 # The bot has received a private message. Respond with yodaspeak 
 sub on_private {
-  my ($kernel, $who, $where, $msg) = @_[KERNEL, ARG0, ARG1, ARG2];
+  my ($heap, $kernel, $who, $where, $msg) = @_[HEAP, KERNEL, ARG0, ARG1, ARG2];
   my $nick    = (split /!/, $who)[0];
+  $heap->{last_loggedin_times}{$nick} = time;
   my $channel = $where->[0];
   my $ts      = scalar localtime;
   print " [$ts] <$nick:$channel> $msg\n";
@@ -104,8 +128,6 @@ sub on_join {
 sub on_quit {
   my ($heap, $kernel, $who, $where, $msg) = @_[HEAP, KERNEL, ARG0, ARG1, ARG2];
   my $nick    = (split /!/, $who)[0];
-  my $dt = DateTime->now;
-  $dt->set_time_zone( 'Asia/Calcutta' );
 
   $heap->{logged_hour}->{$nick} = time;  
   my $channel = $where;
@@ -116,6 +138,4 @@ sub on_quit {
   }
 }
 
-# Run the bot until it is done.
-$poe_kernel->run();
-exit 0;
+1;
