@@ -53,7 +53,7 @@ sub _bot_start {
         connect => {
             Nick     => $nick,
             Username => 'masteryoda',
-            Ircname  => 'Yoda bot by Shantanu Bhadoria<shantanu at cpann dott org>',
+            Ircname  => 'Yoda bot by Shantanu Bhadoria<shantanu@cpan.org>',
             #Server   => 'irc.perl.org',
             Server   => '127.0.0.1',
             Port     => '6667',
