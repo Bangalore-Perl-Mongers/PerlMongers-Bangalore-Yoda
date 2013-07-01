@@ -1,0 +1,9 @@
+=head1 yoda-bot-bangalore-pm
+
+Yoda Bot for #bangalore.pm
+
+=head2 About
+
+An IRC bot that engages in yoda speak for the bangalore.pm IRC Channel.
+
+Simply run the bot or put it up as a upstart script on your server.
