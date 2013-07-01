@@ -1,6 +1,6 @@
-=head1 yoda-bot-bangalore-pm
+=head1 Yoda bot - #Bangalore.pm
 
-Yoda Bot for #bangalore.pm
+Yoda Bot for #bangalore.pm channel on irc.perl.org
 
 =head2 About
 
