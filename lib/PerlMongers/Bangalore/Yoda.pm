@@ -126,7 +126,7 @@ sub _on_join {
     my $ts                   = scalar localtime;
     if( 
         $nick ne 'Yoda'
-        && (time - $heap->{last_loggedin_times}->{$nick}) > 1200 # make sure that the last time nick left channel was more than 20 minutes ago
+        && (time - $heap->{last_loggedin_times}->{$nick}) > 86400 # make sure that the last time nick left channel was more than 24 hours
     ) {
         $logger->info(" <$nick:$channel> Joined");
         if ($channel eq "#bangalore.pm") {
