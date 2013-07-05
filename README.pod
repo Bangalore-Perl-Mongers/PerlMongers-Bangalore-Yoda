@@ -2,8 +2,21 @@
 
 Yoda Bot for #bangalore.pm channel on irc.perl.org
 
-=head2 About
+=head1 About
 
 An IRC bot that engages in yoda speak for the bangalore.pm IRC Channel.
 
 Simply run the bot or put it up as a upstart script on your server.
+
+=head1 Author
+
+Shantanu Bhadoria (shantanu@cpan.org)
+
+=head1 Contributor
+
+Chankey Pathak (chankey@cpan.org)
+
+=head1 COPYRIGHT AND LICENSE
+
+This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
+
